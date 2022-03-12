@@ -11,6 +11,7 @@ use App\Http\Resources\MasjidResource;
 use App\Models\Kajian;
 use App\Models\ScheduleUstadzMasjid;
 use App\Models\Ustadz;
+use App\Notifications\UstadAcceptedNotif;
 use Illuminate\Support\Facades\Auth;
 
 class MasjidController extends Controller
@@ -83,14 +84,12 @@ class MasjidController extends Controller
         $schedule_ustadz_masjid->accepted=true;
         $schedule_ustadz_masjid->save();
 
-        $expo = \ExponentPhpSDK\Expo::normalSetup();
-        $ustadz_user=Ustadz::find($request->ustadz_id)->user_id;
-        $accessToken="TF5HRg_Mrj66rv1Kh33Zz33o2HhjjLCFbU4KkrHd";
-        $expo->setAccessToken($accessToken);
-        $notification = ['body' => 'Anda diterima sebagai pendakwah di Masjid' .Auth::user()->masjid->name, 'sound' => 'default', 'badge' => 1, 'title' => 'Pendakwah'];
+        $ustadz_user=Ustadz::find($request->ustadz_id)->user;
 
-        $expo->notify([$ustadz_user], $notification);
+        //notify ustadz
+        $ustadz_user->notify(new UstadAcceptedNotif($kajian));
 
+        
         //return success
         return response()->json([
             'success' => true,

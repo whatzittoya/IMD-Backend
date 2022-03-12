@@ -24,11 +24,12 @@ class LoginController extends Controller
       
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-            $expo = \ExponentPhpSDK\Expo::normalSetup();
-            $expo->subscribe($user->id, $device_id);
-            $expo->subscribe($user->getRoleNames()[0], $device_id);
+        
 
-          
+            $user->pushTokens()->firstOrCreate(
+                ['token' => $device_id],
+            );
+
 
 
             //refresh token user

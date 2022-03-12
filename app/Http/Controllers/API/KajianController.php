@@ -3,11 +3,17 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\KajianRequest;
 use App\Models\Kajian;
 use App\Models\Ustadz;
 use Illuminate\Http\Request;
 use App\Http\Resources\KajianResource;
 use App\Models\Masjid;
+use App\Models\User;
+use App\Notifications\KajianNotif;
+use App\Notifications\KajianRequestNotif;
+use Illuminate\Support\Facades\Notification;
+
 use Illuminate\Support\Facades\Auth;
 
 class KajianController extends Controller
@@ -68,16 +74,10 @@ class KajianController extends Controller
         //return success response
         return response()->json(['success'=>'Kajian created successfully'], 200);
     }
-    public function store(Request $request)
+    public function store(KajianRequest $request)
     {
         $kajian=new Kajian;
-
-        // $request->validate([
-        //     "title"=>"required",
-        //     "date"=>"required",
-        //     "sylabus"=>"required",
-        //     "tipe_kajian"=>"required",
-        // ]);
+      
         //save data
         $kajian->masjid_id=Auth::user()->masjid->id;
 
@@ -88,13 +88,17 @@ class KajianController extends Controller
         $kajian->save();
 
         //post to notification
-        $expo = \ExponentPhpSDK\Expo::normalSetup();
+        //$expo = \ExponentPhpSDK\Expo::normalSetup();
 
-        $accessToken="TF5HRg_Mrj66rv1Kh33Zz33o2HhjjLCFbU4KkrHd";
-        $expo->setAccessToken($accessToken);
-        $notification = ['body' => 'Permintaan Dakwah di Masjid '.Auth::user()->masjid->name];
+        //$accessToken="TF5HRg_Mrj66rv1Kh33Zz33o2HhjjLCFbU4KkrHd";
+        //  $expo->setAccessToken($accessToken);
+        //$notification = ['body' => 'Permintaan Dakwah di Masjid '.Auth::user()->masjid->name];
+        //notify user
+        //get user where role is ustadz
+        $ustadz=User::role('ustadz')->get();
+        Notification::send($ustadz, new KajianNotif($kajian));
 
-        $expo->notify(["ustadz"], $notification);
+        //$expo->notify(["ustadz"], $notification);
 
 
         //return success response
@@ -120,16 +124,8 @@ class KajianController extends Controller
      * @param  \App\Models\Kajian  $kajian
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Kajian $kajian)
+    public function update(KajianRequest $request, Kajian $kajian)
     {
-        //update kajian
-        $request->validate([
-            "masjid_id"=>"required",
-            "title"=>"required",
-            "date"=>"required",
-            "sylabus"=>"required",
-        ]);
-       
         $kajian->masjid_id=$request->masjid_id;
         $kajian->kajian_title=$request->title;
         $kajian->kajian_date=$request->date;
@@ -153,21 +149,18 @@ class KajianController extends Controller
         $kajian->ustadz()->attach(Auth::user()->id, ['est_kafarah'=>$request->kafarah]);
         //post to notification
         $masjid_id=$kajian->masjid_id;
-        $user_masjid=Masjid::find($masjid_id)->user_id;
-        $expo = \ExponentPhpSDK\Expo::normalSetup();
-
-        $accessToken="TF5HRg_Mrj66rv1Kh33Zz33o2HhjjLCFbU4KkrHd";
-        $expo->setAccessToken($accessToken);
-        $notification = ['body' => 'Ustadz '.Auth::user()->name. " meminta untuk menjadi pendakwah di masjid anda"];
-
-        $expo->notify([$user_masjid], $notification);
+        //get userid masjid
+        $user_masjid=Masjid::find($masjid_id)->user;
+        $ustadz=Ustadz::find(Auth::user()->id);
+  
+        //notify user
+        Notification::send($user_masjid, new KajianRequestNotif($kajian->kajian_title, $ustadz->name));
 
 
         //return success response
-        return response()->json(['success'=>'Success'], 200);
+        return response()->json(['success'=>'Kajian updated successfully'], 200);
     }
 
- 
     /**
      * Remove the specified resource from storage.
      *
@@ -176,6 +169,10 @@ class KajianController extends Controller
      */
     public function destroy(Kajian $kajian)
     {
-        //
+        //delete kajian
+        $kajian->delete();
+
+        //return success response
+        return response()->json(['success'=>'Kajian deleted successfully'], 200);
     }
 }

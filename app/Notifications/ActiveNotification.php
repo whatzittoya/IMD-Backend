@@ -1,21 +1,24 @@
 <?php
+namespace App\Notifications;
 
 use Illuminate\Notifications\Notification;
-use NotificationChannels\ExpoPushNotifications\ExpoChannel;
-use NotificationChannels\ExpoPushNotifications\ExpoMessage;
+use Relative\LaravelExpoPushNotifications\PushNotification;
+use Relative\LaravelExpoPushNotifications\ExpoPushNotifications;
 
 class ActivateNotification extends Notification
 {
+    public function __construct($kajian)
+    {
+        $this->order = $kajian;
+    }
     public function via($notifiable)
     {
-        return [ExpoChannel::class];
+        return [ExpoPushNotifications::class];
     }
-    public function toExpoPush($notifiable)
+    public function toExpoPushNotification($notifiable)
     {
-        return ExpoMessage::create()
-        ->badge(1)
-        ->enableSound()
-        ->title("Account activated")
-        ->body("Your account has been activated");
+        return (new PushNotification)
+            ->title('New order received')
+            ->body("Order #{$this->kajian->kajian_title} is ready for processing");
     }
 }

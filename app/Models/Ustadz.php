@@ -28,4 +28,10 @@ class Ustadz extends Model
     {
         return $this->belongsToMany(Speciality::class, "ustadz_speciality", "ustadz_id", "speciality_id");
     }
+
+    //has userid
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

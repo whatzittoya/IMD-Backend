@@ -39,14 +39,12 @@ Route::post('/test', function () {
 
 //group middleware auth:sanctum
 Route::group(['middleware' => 'auth:sanctum'], function () {
-    Route::post('/kajian1', [KajianController::class, 'saveKajian']);
-
     Route::apiResource('kajian', KajianController::class);
 
     //propose kajian
     Route::post('/kajian/{id}/propose', [KajianController::class, 'propose']);
-    Route::get('/masjidkajian', [MasjidController::class, 'hasKajian']);
-    Route::post('/masjidkajian/{id}/accept', [MasjidController::class, 'acceptUstadz']);
+    Route::get('/masjid/kajian', [MasjidController::class, 'hasKajian']);
+    Route::post('/masjid/kajian/{id}/accept', [MasjidController::class, 'acceptUstadz']);
 
     Route::apiResource('masjid', MasjidController::class);
 

@@ -17,6 +17,7 @@
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
         "orangehill/iseed": "^3.0",
+        "relative/laravel-expo-push-notifications": "^1.0",
         "spatie/laravel-permission": "*"
     },
     "require-dev": {

@@ -31,4 +31,10 @@ class Masjid extends Model
     {
         return $this->hasMany(Kajian::class);
     }
+
+    //has userid
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
