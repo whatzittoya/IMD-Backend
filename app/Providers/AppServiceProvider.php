@@ -7,6 +7,7 @@ use App\Models\Masjid;
 use App\Models\Ustadz;
 use App\Observers\PostObserver;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Schema;
 
 class AppServiceProvider extends ServiceProvider
 {
