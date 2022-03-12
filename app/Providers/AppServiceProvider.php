@@ -30,5 +30,6 @@ class AppServiceProvider extends ServiceProvider
         // Masjid::observe(PostObserver::class);
         // Ustadz::observe(PostObserver::class);
         // Kajian::observe(PostObserver::class);
+        Schema::defaultStringLength(191);
     }
 }
