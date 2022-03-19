@@ -24,19 +24,36 @@ class LoginController extends Controller
       
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
-        
+            try {
+                //save expo token for notification
+                $user->pushTokens()->firstOrCreate(
+                    ['token' => $device_id],
+                );
 
-            $user->pushTokens()->firstOrCreate(
-                ['token' => $device_id],
-            );
+                //refresh token user for api authentication
+                $user->tokens()->delete();
+                $token = $user->createToken($device_id)->plainTextToken;
+            } catch (\Throwable $th) {
+                //return userid has been login on another device
+                return response()->json([
+                'message' => 'User has been login on another device',
+                'status' => 'error',
+                'data' => $th->getMessage(),
+            ], 401);
+            }
 
-
-
-            //refresh token user
-            $user->tokens()->delete();
-            $token = $user->createToken($device_id)->plainTextToken;
+            
             return response()->json(['token' => $token,'user'=>$user,'role'=>$user->getRoleNames()], 200);
         }
         return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    //logout
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+        $request->user()->pushTokens()->delete();
+
+        return response()->json(['message' => 'Successfully logged out'], 200);
     }
 }

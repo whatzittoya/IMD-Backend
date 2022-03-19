@@ -7,6 +7,7 @@ use App\Http\Controllers\API\MasjidController;
 use App\Http\Controllers\API\UstadzController;
 use App\Http\Controllers\API\KajianController;
 use App\Http\Controllers\API\LoginController;
+use App\Http\Controllers\API\SearchController;
 use App\Http\Controllers\API\SpecialityController;
 use App\Http\Controllers\API\SylabusController;
 use Illuminate\Support\Facades\Auth;
@@ -40,6 +41,7 @@ Route::post('/test', function () {
 //group middleware auth:sanctum
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::apiResource('kajian', KajianController::class);
+    Route::post('/logout', [LoginController::class, 'logout']);
 
     //propose kajian
     Route::post('/kajian/{id}/propose', [KajianController::class, 'propose']);
@@ -55,6 +57,9 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
     Route::apiResource('speciality', SpecialityController::class);
     Route::apiResource('sylabus', SylabusController::class);
+
+    //search kajian
+    Route::get('/search/kajian/{id}', [SearchController::class, 'searchKajian']);
 });
 
 

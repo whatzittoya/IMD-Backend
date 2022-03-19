@@ -31,7 +31,6 @@ class KajianController extends Controller
         $kajian=Kajian::with("masjid")->with('sylabus.speciality')->with('ustadz')->orderBy('id', 'desc')->paginate();
         //return with resource and sort by id
 
-
         return KajianResource::collection($kajian);
     }
 

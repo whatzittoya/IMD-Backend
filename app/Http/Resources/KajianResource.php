@@ -33,6 +33,8 @@ class KajianResource extends JsonResource
             'status' => $status_number,
             'statusText' => $this->status_kajian,
             'sylabus' =>new SylabusResource($this->sylabus),
+            'ustadz' => UstadzResource::collection($this->ustadz),
+
             //'sylabus' =>$this->sylabus,
 
           
