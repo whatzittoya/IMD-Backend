@@ -19,6 +19,7 @@ class MasjidKajianResource extends JsonResource
             'title' => $this->kajian_title,
             'date' => $this->kajian_date,
             'masjid' => $this->masjid->name,
+            'image' => $this->masjid->image,
             'request'=> count($this->ustadz),
             'status' => $this->status_kajian,
           'ustadz' => UstadzResource::collection($this->ustadz),

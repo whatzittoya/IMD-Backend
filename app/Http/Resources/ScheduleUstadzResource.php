@@ -17,7 +17,9 @@ class ScheduleUstadzResource extends JsonResource
         //return parent::toArray($request);
         return [
             'kajian_id' => $this->schedule_kajianmasjid_id,
-          'kafarah' => $this->est_kafarah,
+          'note_for_masjid' => $this->note_for_masjid,
+          'accepted' => $this->accepted,
+          'kajian' => new KajianResource($this->kajian),
           
         ];
     }

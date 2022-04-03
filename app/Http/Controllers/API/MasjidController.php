@@ -66,7 +66,14 @@ class MasjidController extends Controller
     public function hasKajian(Request $request)
     {
         //get masjid with pivot kafarah
-        $masjid_id=Auth::user()->masjid->id;
+        //check request masjid id not empty
+        $masjid_id=0;
+        if ($request->masjid_id != null) {
+            $masjid_id=$request->masjid_id;
+        } else {
+            $masjid_id=Auth::user()->masjid->id;
+        }
+   
         //get ustadz kajian
         $kajian=Kajian::where('masjid_id', $masjid_id)->with('ustadz')->with('sylabus.speciality')->get();
         return MasjidKajianResource::collection($kajian);

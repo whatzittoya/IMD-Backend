@@ -28,7 +28,7 @@ class KajianController extends Controller
         //get kajian with order by date
         //$kajian=Kajian::orderBy('kajian_date', 'desc')->get();
         //return $kajian;
-        $kajian=Kajian::with("masjid")->with('sylabus.speciality')->with('ustadz')->orderBy('id', 'desc')->paginate();
+        $kajian=Kajian::with("masjid")->with('sylabus.speciality')->with('speciality')->with('ustadz')->orderBy('id', 'desc')->paginate(50);
         //return with resource and sort by id
 
         return KajianResource::collection($kajian);
@@ -40,6 +40,7 @@ class KajianController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+
 
     public function saveKajian(Request $request)
     {
@@ -73,18 +74,37 @@ class KajianController extends Controller
         //return success response
         return response()->json(['success'=>'Kajian created successfully'], 200);
     }
-    public function store(KajianRequest $request)
+    public function store(Request $request)
     {
         $kajian=new Kajian;
       
         //save data
         $kajian->masjid_id=Auth::user()->masjid->id;
-
         $kajian->kajian_title=$request->title;
+        $kajian->tipe_kajian=$request->tipe_kajian;
         $kajian->kajian_date=$request->date;
+
+        if (($request->event=="Rutin" && $request->tipe_kajian=="Tematik") || $request->tipe_kajian=="Silabus") {
+            $kajian->kajian_date_finish=$request->second_date;
+            $kajian->keilmuan=$request->speciality;
+        }
+        if ($request->tipe_kajian=="Tematik") {
+            $kajian->event=$request->event;
+        }
+
+        if ($request->isDirectInvite) {
+            $kajian->jenis_undangan="langsung";
+            $kajian->note=$request->message;
+        } else {
+            $kajian->jenis_undangan="terbuka";
+        }
+        $kajian->waktu=$request->waktu_kajian;
+
         $kajian->status_kajian="new";
-        $kajian->sylabus_id=$request->sylabus;
         $kajian->save();
+
+        $kajian->ustadz()->attach($request->ustadz, ['est_kafarah'=>$request->kafarah]);
+
 
         //post to notification
         //$expo = \ExponentPhpSDK\Expo::normalSetup();
@@ -95,7 +115,7 @@ class KajianController extends Controller
         //notify user
         //get user where role is ustadz
         $ustadz=User::role('ustadz')->get();
-        Notification::send($ustadz, new KajianNotif($kajian));
+        //Notification::send($ustadz, new KajianNotif($kajian));
 
         //$expo->notify(["ustadz"], $notification);
 
@@ -139,18 +159,24 @@ class KajianController extends Controller
     public function propose(Request $request, Kajian $kajian)
     {
         //update kajian
-        $request->validate([
-            "kafarah"=>"required",
-        ]);
+        // $request->validate([
+        //     "kafarah"=>"required",
+        // ]);
         
         //save many to many with ustadz
         $kajian=Kajian::find($request->id);
-        $kajian->ustadz()->attach(Auth::user()->id, ['est_kafarah'=>$request->kafarah]);
+        if ($kajian->jenis_undangan=="terbuka") {
+            $kajian->ustadz()->attach(Auth::user()->ustadz->id, ['note_for_masjid'=>$request->note]);
+        } elseif ($kajian->jenis_undangan=="langsung") {
+            $kajian->ustadz()->attach(Auth::user()->ustadz->id, ['note_for_masjid'=>$request->note,'accepted'=>1]);
+            $kajian->status_kajian="has_ustadz";
+            $kajian->update();
+        }
         //post to notification
         $masjid_id=$kajian->masjid_id;
         //get userid masjid
         $user_masjid=Masjid::find($masjid_id)->user;
-        $ustadz=Ustadz::find(Auth::user()->id);
+        $ustadz=Ustadz::find(Auth::user()->ustadz->id);
   
         //notify user
         Notification::send($user_masjid, new KajianRequestNotif($kajian->kajian_title, $ustadz->name));

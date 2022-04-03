@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\ScheduleUstadzMasjid;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UstadzResource extends JsonResource
@@ -18,7 +19,7 @@ class UstadzResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'image' => $this->image,
-            'pivot' => $this->pivot,
+            'schedule' => $this->pivot,
             'address' => $this->address,
             'hp' => $this->hp,
             'email' => $this->email,

@@ -24,17 +24,28 @@ class Kajian extends Model
     {
         return $this->belongsTo(Sylabus::class, "sylabus_id");
     }
+    public function speciality()
+    {
+        return $this->belongsTo(Speciality::class, "keilmuan");
+    }
+
 
     //many to many with ustadz with attribute kafarah
 
     public function ustadz()
     {
-        return $this->belongsToMany(Ustadz::class, "schedule_ustadzmasjid", "schedule_kajianmasjid_id", "ustadz_id")->withPivot("est_kafarah")->withPivot("accepted")->withTimestamps();
+        return $this->belongsToMany(Ustadz::class, "schedule_ustadzmasjid", "schedule_kajianmasjid_id", "ustadz_id")->withPivot("note_for_masjid")->withPivot("accepted")->withTimestamps();
     }
 
     //has many with ScheduleUstadzMasjid
     public function scheduleUstadzMasjid()
     {
         return $this->hasMany(ScheduleUstadzMasjid::class, "schedule_kajianmasjid_id");
+    }
+
+    //filter ustadz_id
+    public function scopeUstadzId($ustadz_id)
+    {
+        return $this->ustadz()->where('ustadz_id', $ustadz_id);
     }
 }

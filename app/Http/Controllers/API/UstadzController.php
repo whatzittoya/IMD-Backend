@@ -54,10 +54,22 @@ class UstadzController extends Controller
         //get ustadz with pivot kafarah
         
         //get kajian with order by date
-      
+        $ustadz_id=0;
+        if ($request->ustadz_id != null) {
+            $ustadz_id=$request->ustadz_id;
+        } else {
+            $ustadz_id=Auth::user()->ustadz->id;
+        }
+
         //get kajian that only had by this ustadz
-        $kajian=ScheduleUstadzMasjid::where('ustadz_id', Auth::user()->ustadz->id)->get();
-        return ScheduleUstadzResource::collection($kajian);
+        //get kajian with ustadz_id
+        // $kajian=Kajian::with('ustadz')->whereHas('ustadz', function ($query) use ($ustadz_id) {
+        //     $query->where('ustadz_id', $ustadz_id)->where('accepted', 1);
+        // })->orderBy('created_at', 'desc')->paginate();
+        // return KajianResource::collection($kajian);
+
+        $schedule_kajian=ScheduleUstadzMasjid::where('ustadz_id', $ustadz_id)->with('kajian')->get();
+        return ScheduleUstadzResource::collection($schedule_kajian);
     }
 
 
