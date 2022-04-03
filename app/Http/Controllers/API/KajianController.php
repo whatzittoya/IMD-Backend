@@ -95,6 +95,7 @@ class KajianController extends Controller
         if ($request->isDirectInvite) {
             $kajian->jenis_undangan="langsung";
             $kajian->note=$request->message;
+            $kajian->ustadz()->attach($request->ustadz, ['est_kafarah'=>$request->kafarah]);
         } else {
             $kajian->jenis_undangan="terbuka";
         }
@@ -103,7 +104,6 @@ class KajianController extends Controller
         $kajian->status_kajian="new";
         $kajian->save();
 
-        $kajian->ustadz()->attach($request->ustadz, ['est_kafarah'=>$request->kafarah]);
 
 
         //post to notification

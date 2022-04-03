@@ -19,6 +19,7 @@ class ScheduleUstadzResource extends JsonResource
             'kajian_id' => $this->schedule_kajianmasjid_id,
           'note_for_masjid' => $this->note_for_masjid,
           'accepted' => $this->accepted,
+          'status' => $this->status,
           'kajian' => new KajianResource($this->kajian),
           
         ];
