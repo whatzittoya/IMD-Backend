@@ -166,7 +166,7 @@ class KajianController extends Controller
         //save many to many with ustadz
         $kajian=Kajian::find($request->id);
         if ($kajian->jenis_undangan=="terbuka") {
-            $kajian->ustadz()->attach(Auth::user()->ustadz->id, ['note_for_masjid'=>$request->note,'status'=>'reponded']);
+            $kajian->ustadz()->sync(Auth::user()->ustadz->id, ['note_for_masjid'=>$request->note,'status'=>'reponded']);
         } elseif ($kajian->jenis_undangan=="langsung") {
             $kajian->ustadz()->attach(Auth::user()->ustadz->id, ['note_for_masjid'=>$request->note,'accepted'=>1,'status'=>'reponded']);
             $kajian->status_kajian="has_ustadz";
